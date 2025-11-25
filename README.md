@@ -16,3 +16,4 @@ helm install falco falcosecurity/falco \
   --set-json 'falco.append_output=[{"match":{"source":"syscall"},"extra_output":"pod_uid=%k8smeta.pod.uid, pod_name=%k8smeta.pod.name, namespace_name=%k8smeta.ns.name","extra_fields":[{"wazuh_integration":"falco"}]}]' \
   -f custom-rules.yaml
 ```
+2. Wazuh Kubernetes configuration
