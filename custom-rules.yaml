@@ -1,0 +1,78 @@
+customRules:
+  custom_rules.yaml: |-
+    - list: shell_binaries
+      items: [bash, sh, zsh, csh, ksh, tcsh, ash, dash, fish]
+
+    - macro: spawned_process
+      condition: evt.type=execve and evt.dir=<
+
+    - macro: container
+      condition: container.id != host
+
+    - rule: Listen on Suspicious Port
+      desc: Suspicious port opened
+      condition: container and evt.type=listen and not fd.lport in (80, 443, 8080, 3000, 5432, 3306) and k8smeta.ns.name=dvwa
+      output: Port opened (hostname=%evt.hostname user=%user.name port=%fd.lport process=%proc.name command=%proc.cmdline pod_name=%k8smeta.pod.name namespace=%k8smeta.ns.name container_id=%container.id)
+      priority: WARNING
+      tags: [network, suspicious]
+
+    - rule: Sensitive Mount Operation
+      desc: Mount command detected
+      condition: container and evt.type=mount
+      output: Mount detection (hostname=%evt.hostname user=%user.name process=%proc.name command=%proc.cmdline pod_name=%k8smeta.pod.name namespace=%k8smeta.ns.name container_id=%container.id)
+      priority: CRITICAL
+      tags: [container_escape, privilege_escalation]
+
+    - rule: Suspicious SU Usage
+      desc: Suspicious SU usage detected
+      condition: >
+        container and
+        spawned_process and
+        proc.name = "su" and
+        (proc.args = "" or
+         proc.args = "-" or
+         proc.args contains "root")
+      output: Suspicious su usage to root (hostname=%evt.hostname user=%user.name process=%proc.name command=%proc.cmdline pod_name=%k8smeta.pod.name namespace=%k8smeta.ns.name container_id=%container.id)
+      priority: CRITICAL
+      tags: [privilege_escalation, suspicious_activity]
+
+    - rule: Reconnaissance Command df
+      desc: Detects the use of df command (disk space checking)
+      condition: >
+        spawned_process and
+        proc.name = "df" and
+        (proc.args contains "-h" or proc.args contains "-a")
+      output: Detected df command - filesystem reconnaissance (hostname=%evt.hostname user=%user.name process=%proc.name command=%proc.cmdline pod_name=%k8smeta.pod.name namespace=%k8smeta.ns.name container_id=%container.id)
+      priority: NOTICE
+      tags: [reconnaissance, mitre_discovery, T1083]
+
+    - rule: Reconnaissance Command hostname
+      desc: Detects the use of hostname command to check IP addresses
+      condition: >
+        spawned_process and
+        proc.name = "hostname" and
+        (proc.args contains "-I" or proc.args contains "-i")
+      output: Detected hostname command - network reconnaissance (hostname=%evt.hostname user=%user.name process=%proc.name command=%proc.cmdline pod_name=%k8smeta.pod.name namespace=%k8smeta.ns.name container_id=%container.id)
+      priority: NOTICE
+      tags: [reconnaissance, mitre_discovery, T1016]
+
+    - rule: Reconnaissance Command ps
+      desc: Detects the use of ps command (process listing)
+      condition: >
+        spawned_process and
+        proc.name = "ps" and
+        (proc.args contains "aux" or proc.args contains "-ef")
+      output: Detected ps command (hostname=%evt.hostname user=%user.name process=%proc.name command=%proc.cmdline pod_name=%k8smeta.pod.name namespace=%k8smeta.ns.name container_id=%container.id)
+      priority: NOTICE
+      tags: [reconnaissance, mitre_discovery, T1057]
+
+    - rule: Terminal Shell in Container
+      desc: A shell was spawned in a container with an attached terminal
+      condition: >
+        spawned_process and
+        container and
+        proc.name in (shell_binaries) and
+        proc.tty != 0
+      output: Interactive shell spawned in container with terminal (hostname=%evt.hostname user=%user.name process=%proc.name shell=%proc.name parent=%proc.pname cmdline=%proc.cmdline terminal=%proc.tty container=%container.name)
+      priority: NOTICE
+      tags: [shell, container, terminal]
