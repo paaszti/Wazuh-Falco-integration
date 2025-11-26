@@ -158,7 +158,7 @@ After applying rules and decoders, Wazuh Manager restart is required.
 
 ## DVWA
 Vulnerable pod to execute attacks and trigger alerts in Falco and see logs in Wazuh Dashboard.
-### Option A: With building image
+### Building image
 ```sh
 docker build -t mydvwa:v1
 #Save to the .tar file
@@ -171,15 +171,7 @@ Then apply deployment
 ```sh
 kubectl apply -f dvwa.yaml
 ```
-### Option B: Without building image
-```sh
-#Save to the ctr
-microk8s images import dvwa.tar
-```
-Then apply deployment
-```sh
-kubectl apply -f dvwa.yaml
-```
+
 ### Veryfing
 ```sh
 kubectl get pods -n dvwa
