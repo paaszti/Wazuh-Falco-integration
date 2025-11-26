@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: dvwa
-        image: docker.io/library/mydvwa:v6
+        image: docker.io/library/mydvwa:v1
         imagePullPolicy: Never
         ports:
         - containerPort: 80
