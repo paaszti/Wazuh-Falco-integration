@@ -154,7 +154,10 @@ Credentials: `admin:SecretPassword`
 
 ### Rules & Decoders
 You have to apply rules `falco-rules.xml` and decoder `falco-decoder.xml` to the Wazuh Manager.\
-You can do this with Wazuh Dashboard.\
+You can do this with Wazuh Dashboard.
+* Server management -> Decoders -> Add new decoders file -> Paste content from `falco-decoder.xml` -> Save
+* Server management -> Rules -> Add new rules file -> Paste content from `falco-rules.xml` -> Save
+
 After applying rules and decoders, Wazuh Manager restart is required.
 
 ## DVWA
@@ -180,6 +183,7 @@ kubectl get svc -n dvwa
 ```
 
 ## Deploying Wazuh agent
+Deploying an agent: [How to deploy an agent](https://documentation.wazuh.com/4.8/installation-guide/wazuh-agent/index.html)\
 You have to add these lines to the end of the file: `/var/ossec/etc/ossec.conf`
 ```sh
  <localfile>
