@@ -114,6 +114,7 @@ There I changed Wazuh default manifests, so you can just simple copy them:
 ```sh
 cp wazuh-worker-sts.yaml ./wazuh-kubernetes/wazuh/wazuh_managers/
 cp wazuh-master-sts.yaml ./wazuh-kubernetes/wazuh/wazuh_managers/
+cp indexer-resources.yaml ./wazuh-kubernetes/envs/local-env/
 ```
 
 Then you can apply all manifests using kustomize
